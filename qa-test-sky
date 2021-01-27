@@ -1,0 +1,31 @@
+# Have created a simple csv file just to make sure it reads in and works :) 
+
+from sqlalchemy import create_engine
+import pandas as pd
+
+data = pd.read_csv('qa_tests.csv').reset_index()
+
+# Create the db engine
+engine = create_engine('sqlite:///:memory:')
+
+# Store the dataframe as a table
+data.to_sql('data_table', engine)
+
+# Q1 to read the relational table
+qa_test = pd.read_sql_query("SELECT * FROM data_table WHERE enabled <> 'N'", engine)
+print('Result 1')
+print(qa_test)
+
+# Q2 
+# Unsure on what is actually required but replacing the env and date with itself can be changed to anythin
+qa_test['test_sql'].replace('env', 'env', inplace=True)
+qa_test['test_sql'].replace('date', 'date', inplace=True)
+
+for i in range(len(qa_test)):
+    exc = qa_test['test_sql'].iloc[i]
+    # 2. printing the sql that will be executed
+    print('The SQL that will be executed')
+    print(exc)
+    # Running this asssuming that the various tables already exist in the sqlalchemy database
+    print('The Final result')
+    print(pd.read_sql_query(exc, engine))
